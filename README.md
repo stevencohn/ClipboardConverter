@@ -14,3 +14,12 @@ Then the easiest way to get the HTML into OneNote, without hacking away at the p
 HTML directly, is to paste it from the clipboard. This is done simply by invoking
 the Ctrl-V key sequence.
 
+## Command Line
+
+PS> **.\ClipboardRtfToHtml.exe [--dump]**
+
+By default, this console application grabs RTF on the clipboard and converts
+it to HTML.
+
+The --dump argument simply prints out the contents of the clipboard without
+any further processing.
