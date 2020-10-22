@@ -16,7 +16,7 @@ the Ctrl-V key sequence.
 
 ## Command Line
 
-PS> **.\ClipboardRtfToHtml.exe [--dump]**
+PS> **.\converter.exe [--dump]**
 
 By default, this console application grabs RTF on the clipboard and converts
 it to HTML.
