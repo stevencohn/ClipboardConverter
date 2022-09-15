@@ -79,6 +79,8 @@ namespace ClipboardRtfToHtml
 				if (Clipboard.ContainsText(TextDataFormat.Text))
 					DumpContent(Clipboard.GetText(TextDataFormat.Text),
 						TextDataFormat.Text, "CLIPBOARD");
+
+				DumpDataObject();
 			});
 
 			thread.SetApartmentState(ApartmentState.STA);
@@ -118,6 +120,17 @@ namespace ClipboardRtfToHtml
 			ConsoleWrite(content, ConsoleColor.DarkGray);
 			ConsoleWriteLine("]", ConsoleColor.DarkYellow);
 			Console.WriteLine();
+		}
+
+
+		private void DumpDataObject()
+		{
+			var data = Clipboard.GetDataObject();
+
+			ConsoleWrite("DataObject.Formats=[", ConsoleColor.Yellow);
+			var formats = data.GetFormats();
+			ConsoleWrite(string.Join(", ", formats), ConsoleColor.DarkGray);
+			ConsoleWriteLine("]", ConsoleColor.Yellow);
 		}
 
 
