@@ -7,9 +7,10 @@ namespace ClipboardRtfToHtml
 	using System;
 	using System.IO;
 	using System.Linq;
+	using System.Runtime.InteropServices;
 	using System.Text;
 	using System.Threading;
-    using System.Windows;
+	using System.Windows;
 	using System.Windows.Controls;
 	using System.Windows.Documents;
 	using System.Xml;
@@ -26,6 +27,12 @@ namespace ClipboardRtfToHtml
 		// https://www.freeclipboardviewer.com/
 
 		private static readonly char Space = '\u00a0'; // Unicode no-break space
+
+
+		[DllImport("user32.dll")]
+		private static extern int GetClipboardFormatName(
+			int format, StringBuilder name, int maxCount);
+
 
 
 		static void Main(string[] args)
@@ -58,29 +65,39 @@ namespace ClipboardRtfToHtml
 			{
 				if (Clipboard.ContainsText(TextDataFormat.Html))
 					DumpContent(Clipboard.GetText(TextDataFormat.Html),
-						TextDataFormat.Html, "CLIPBOARD", fancy);
+						TextDataFormat.Html.ToString(), "CLIPBOARD", fancy);
 
 				if (Clipboard.ContainsText(TextDataFormat.Rtf))
 					DumpContent(Clipboard.GetText(TextDataFormat.Rtf),
-						TextDataFormat.Rtf, "CLIPBOARD");
+						TextDataFormat.Rtf.ToString(), "CLIPBOARD");
 
 				if (Clipboard.ContainsText(TextDataFormat.Xaml))
 					DumpContent(Clipboard.GetText(TextDataFormat.Xaml),
-						TextDataFormat.Xaml, "CLIPBOARD", fancy);
+						TextDataFormat.Xaml.ToString(), "CLIPBOARD", fancy);
 
 				if (Clipboard.ContainsText(TextDataFormat.CommaSeparatedValue))
 					DumpContent(Clipboard.GetText(TextDataFormat.CommaSeparatedValue),
-						TextDataFormat.CommaSeparatedValue, "CLIPBOARD");
+						TextDataFormat.CommaSeparatedValue.ToString(), "CLIPBOARD");
 
 				if (Clipboard.ContainsText(TextDataFormat.UnicodeText))
 					DumpContent(Clipboard.GetText(TextDataFormat.UnicodeText),
-						TextDataFormat.UnicodeText, "CLIPBOARD");
+						TextDataFormat.UnicodeText.ToString(), "CLIPBOARD");
 
 				if (Clipboard.ContainsText(TextDataFormat.Text))
 					DumpContent(Clipboard.GetText(TextDataFormat.Text),
-						TextDataFormat.Text, "CLIPBOARD");
+						TextDataFormat.Text.ToString(), "CLIPBOARD");
 
-				DumpDataObject();
+				if (Clipboard.ContainsData("OneNote Link"))
+				{
+					var obj = Clipboard.GetData("OneNote Link");
+					if (obj is MemoryStream stream)
+					{
+						DumpContent(Encoding.UTF8.GetString(stream.ToArray()),
+							"OneNote Link", "CLIPBOARD");
+					}
+				}
+
+				DumpDataObjectFormats();
 			});
 
 			thread.SetApartmentState(ApartmentState.STA);
@@ -92,7 +109,7 @@ namespace ClipboardRtfToHtml
 		}
 
 		private void DumpContent(
-			string content, TextDataFormat format, string title = "CONTENT", bool fancy = false)
+			string content, string format, string title = "CONTENT", bool fancy = false)
 		{
 			string preamble = null;
 
@@ -110,7 +127,7 @@ namespace ClipboardRtfToHtml
 				content = XElement.Parse(content).ToString(SaveOptions.None);
 			}
 
-			ConsoleWrite($"{title}: ({format.ToString()}) [", ConsoleColor.Yellow);
+			ConsoleWrite($"{title}: ({format}) [", ConsoleColor.Yellow);
 
 			if (preamble != null)
 			{
@@ -123,7 +140,7 @@ namespace ClipboardRtfToHtml
 		}
 
 
-		private void DumpDataObject()
+		private void DumpDataObjectFormats()
 		{
 			var data = Clipboard.GetDataObject();
 
